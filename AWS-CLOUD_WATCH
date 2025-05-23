@@ -1,0 +1,50 @@
+#create EC2-INSTANCE
+sudo yum install amazon-cloudwatch-agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -c file:/path/to/config.json -s
+
+#configure agent
+Create a configuration file (e.g., config.json) specifying the metrics to collect.
+Use the amazon-cloudwatch-agent-config-wizard for guided setup.
+
+#Now start the agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -c file:/path/to/config.json -s
+
+#Now verify the metrics
+In the CloudWatch Console, under Metrics, look for the CWAgent namespace to find memory and disk usage metrics.
+
+#Setting Up an Email Alert for High CPU Usage
+Navigate to the SNS Console.
+Click Topics > Create topic.
+Choose Standard as the type.
+Enter a name (e.g., HighCPUAlert) and create the topic.
+After creation, select the topic and click Create subscription.
+For Protocol, choose Email.
+Enter your email address and create the subscription.
+Check your email and confirm the subscription by clicking the provided link.
+
+
+#Create a CloudWatch Alarm
+In the CloudWatch Console, select Alarms > Create alarm.
+Click Select metric and navigate to EC2 > Per-Instance Metrics.
+Choose the CPUUtilization metric for your instance.
+Click Select metric.
+Under Conditions, set:
+Threshold type: Static
+Whenever CPUUtilization is: Greater than
+Threshold: 80
+
+#Note:Under Additional configuration:
+Datapoints to alarm: 1
+Evaluation periods: 1
+Period: 5 minutes
+
+
+Click Next.
+Under Notification, select the SNS topic you created earlier.
+Click Next, provide a name for the alarm (e.g., HighCPUUsageAlarm), and click Next.
+Review the settings and click Create alarm
+
+#Conclusion
+if your EC2 instance's CPU usage exceeds 80% for a 5-minute period, you'll receive an email notification.
